@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title><%= title %></title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="/Script/function.js"></script>
+
+<style>
+	#demo{
+		border: 1px solid black;
+		padding: 10px;
+		width: 400px;
+		height: 100px;
+		overflow-y: scroll;
+	}
+</style>
+<script>
+// On ecoute le post websocket
+var socket = io.connect('http://localhost:8080');
+// On demande le pseudo au visiteur...
+var pseudo = prompt('Quel est votre pseudo ?');
+// Et on l'envoie avec le signal "petit_nouveau" (pour le différencier de "message")
+socket.emit('petit_nouveau', pseudo);
+// On affiche une boîte de dialogue quand le serveur nous envoie un "message"
+socket.on('message', function(message) {
+//alert('Le serveur a un message pour vous : ' + message);
+document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>"+message;
+});
+
+socket.on('newGame', function(flag, name) {
+//alert('Le serveur a un message pour vous : ' + message);
+document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>flag :"+flag+" et name"+name;
+$("#flag").attr("src", flag);
+});
+function sendMessage() {
+
+	message = document.getElementById("textfield_message").value;
+	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>[moi]"+message;
+	socket.emit('message', message);
+};
+function isReady() {
+	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Vous êtes prêt !";
+	socket.emit('ready');
+};
+</script>
+</head>
+<body>
+<h1>World Quizz</h1>
+<img id="flag" src="" width="600" height="400" alt="Matchmaking..."/>
+<input type="text" id="textfield_message" placeholder="mon message">
+<button onclick="sendMessage()">Envoyer le message</button>
+<button onclick="nextGame()">Nouvelle partie</button>
+<p id="demo"></p id>
+
+<button onclick="isReady()">Pret !</button>
+</body>
+</html>
