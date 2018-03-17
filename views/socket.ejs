@@ -14,6 +14,11 @@
 		height: 100px;
 		overflow-y: scroll;
 	}
+	.lobby{
+		border: 1px solid black;
+		padding: 10px;
+		width: 200px;
+	}
 </style>
 <script>
 // On ecoute le post websocket
@@ -28,7 +33,70 @@ socket.on('message', function(message) {
 document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>"+message;
 });
 
-socket.on('newGame', function(flag, name) {
+socket.on('newPlayer', function(joueurs) {
+//alert('Le serveur a un message pour vous : ' + message);
+	$(".lobby").html("");
+	for (i = 0, len = joueurs.length; i < len; ++i) {
+		  var player = document.createElement("div");
+	var playerScore = document.createElement("p");
+	$(player).attr('id', joueurs[i].name+"name");
+	$(playerScore).attr('id', joueurs[i].score+"Score");
+
+	$(player).html(joueurs[i].name);
+	if(joueurs[i].ready){
+		$(playerScore).html("Pret !");
+	}else{
+		$(playerScore).html("En attente ...");
+	}
+	
+
+	$(".lobby").append(player);
+	$(player).append(playerScore);  
+	}
+});
+
+socket.on('changeScore', function(joueurs) {
+//alert('Le serveur a un message pour vous : ' + message);
+	$(".lobby").html("");
+	for (i = 0, len = joueurs.length; i < len; ++i) {
+		  var player = document.createElement("div");
+	var playerScore = document.createElement("p");
+	$(player).attr('id', joueurs[i].name+"name");
+	$(playerScore).attr('id', joueurs[i].score+"Score");
+
+	$(player).html(joueurs[i].name);
+	$(playerScore).html(joueurs[i].score);
+
+	$(".lobby").append(player);
+	$(player).append(playerScore);  
+	}
+});
+
+socket.on('winner', function(nameWinner, joueurs) {
+//alert('Le serveur a un message pour vous : ' + message);
+	$("#demo").html(nameWinner+" a gagné la partie ! ");
+	$(".lobby").html("");
+	for (i = 0, len = joueurs.length; i < len; ++i) {
+		  var player = document.createElement("div");
+	var playerScore = document.createElement("p");
+	$(player).attr('id', joueurs[i].name+"name");
+	$(playerScore).attr('id', joueurs[i].score+"Score");
+
+	$(player).html(joueurs[i].name);
+	if(joueurs[i].ready){
+		$(playerScore).html("Pret !");
+	}else{
+		$(playerScore).html("En attente ...");
+	}
+	
+
+	$(".lobby").append(player);
+	$(player).append(playerScore);  
+	}
+	$("#ready").show();
+});
+
+socket.on('newGame', function(flag) {
 //alert('Le serveur a un message pour vous : ' + message);
 document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>flag :"+flag+" et name"+name;
 $("#flag").attr("src", flag);
@@ -42,6 +110,7 @@ function sendMessage() {
 function isReady() {
 	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Vous êtes prêt !";
 	socket.emit('ready');
+	$("#ready").hide();
 };
 </script>
 </head>
@@ -51,8 +120,10 @@ function isReady() {
 <input type="text" id="textfield_message" placeholder="mon message">
 <button onclick="sendMessage()">Envoyer le message</button>
 <button onclick="nextGame()">Nouvelle partie</button>
-<p id="demo"></p id>
-
-<button onclick="isReady()">Pret !</button>
+<p id="demo"></p>
+<div class="lobby">
+	
+</div>
+<button id="ready" onclick="isReady()">Pret !</button>
 </body>
 </html>

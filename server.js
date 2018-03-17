@@ -35,8 +35,9 @@ app.get('/',function(req,res){
 var io = require('socket.io').listen(server);
 
 // Quand un client se connecte, on le note dans la console
-var joueurs = 0;
-var joueursReady = 0;
+var joueurs = [];
+var nameCountry = "";
+var scoreGagnant = 0;
 io.sockets.on('connection', function (socket) {
 	console.log('Un client est connecté !');
 	// Quand un client se connecte, on lui envoie un message
@@ -46,28 +47,92 @@ io.sockets.on('connection', function (socket) {
 	// Dès qu'on nous donne un pseudo, on le stocke en variable de session
 	socket.on('petit_nouveau', function(pseudo) {
 		socket.pseudo = pseudo;
-		joueurs ++;
+		
+		var player = new Object();
+		player.name = pseudo;
+		player.score = 0;
+		player.ready = false;
+		joueurs[joueurs.length] = player;
+		console.log("joueurs new: "+joueurs);
+
+		socket.broadcast.emit('newPlayer', joueurs);
+		socket.emit('newPlayer', joueurs);
 	});
 	// Dès qu'on reçoit un "message" (clic sur le bouton), on le note dans la console
 	socket.on('message', function (message) {
 		// On récupère le pseudo de celui qui a cliqué dans les variables de session
 		console.log(socket.pseudo + ' me parle ! Il me dit : ' + message);
 		socket.broadcast.emit('message', "["+socket.pseudo+"] "+ message);
+		if(message == nameCountry){
+			socket.broadcast.emit('message', "["+socket.pseudo+"] a gagné!");
+			socket.emit('message', "Vous a gagné!");
+			console.log("joueur length "+joueurs.length)
+			for (i = 0, len = joueurs.length; i < len; ++i) {
+				console.log(joueurs[i].name);
+			    if(joueurs[i].name == socket.pseudo){
+			    	joueurs[i].score++;
+			    	scoreGagnant = joueurs[i].score;
+			    }
+			}
+			if(scoreGagnant == 2)
+				{for (i = 0, len = joueurs.length; i < len; ++i) {
+					joueurs[i].score = 0;
+					joueurs[i].ready = false;
+				}
+				socket.emit('winner', socket.pseudo, joueurs);
+				socket.broadcast.emit('winner', socket.pseudo, joueurs);
+				
+			}else{
+				var i  =  Math.floor(Math.random() * Math.floor(250));
+				nameCountry = countries[i].name;
+				socket.emit('newGame', countries[i].flag);
+				socket.broadcast.emit('newGame', countries[i].flag);
+				console.log("nom du drapeau : "+nameCountry);
+				socket.broadcast.emit('changeScore', joueurs);
+				socket.emit('changeScore', joueurs);
+			}
+		
+		}
+
 	});
 	socket.on('ready', function () {
 		// On récupère le pseudo de celui qui a cliqué dans les variables de session
 		console.log(socket.pseudo + ' est prêt!');
+		var allReady = true;
 		socket.broadcast.emit('message', "["+socket.pseudo+"] est prêt !");
-		joueursReady ++;
-		if(joueurs == joueursReady){
+		console.log("joueurs ready: "+joueurs.length);
+		for (i = 0, len = joueurs.length; i < len; ++i) {
+		    if(joueurs[i].name == socket.pseudo){
+		    	joueurs[i].ready = true;
+		    }
+		}
+
+		socket.broadcast.emit('newPlayer', joueurs);
+		socket.emit('newPlayer', joueurs);
+		for (i = 0, len = joueurs.length; i < len; ++i) {
+		    if(!joueurs[i].ready){
+		    	allReady = false;
+		    }
+		}
+
+		if(allReady){
 			console.log("Tout le monde est pret!");
 			socket.emit('message', 'Tout le monde est pret');
 			socket.broadcast.emit('message', "Tout le monde est pret");
 			var i  =  Math.floor(Math.random() * Math.floor(250));
-			socket.emit('newGame', countries[i].flag,  countries[i].name);
-			socket.broadcast.emit('newGame', countries[i].flag,  countries[i].name);
+			nameCountry = countries[i].name;
+			socket.emit('newGame', countries[i].flag);
+			socket.broadcast.emit('newGame', countries[i].flag);
+			console.log("nom du drapeau : "+nameCountry);
+			socket.broadcast.emit('changeScore', joueurs);
+			socket.emit('changeScore', joueurs);
 		}
 		socket.score = 0;
 	});
 });
+
+io.sockets.on( 'disconnect', function () {
+    console.log( 'disconnected to server' );
+    
+} );
 server.listen(8080);
