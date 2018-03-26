@@ -8,6 +8,7 @@
     //-->
     </script>
 <title><%= title %></title>
+
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -17,7 +18,13 @@
 
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Pacifico');
+
 body{
+	font-family: 'Pacifico', cursive;
+	background-image: url(https://images8.alphacoders.com/719/719671.jpg);
+	background-repeat: no-repeat;
+    background-position: center;
 	overflow-x: hidden;
 }
 	.ui-helper-hidden-accessible{
@@ -40,11 +47,16 @@ body{
 		height: 35%;
 		overflow-y: auto;
 		margin-top: 20px;
+		color:#FFF;;
+		background-color: rgba(0, 0, 0, 0.7);
+
 }
 
 .lobby{
 		border: 1px solid black;
 		padding: 20px;
+		color:#FFF;
+		background-color: rgba(0, 0, 0, 0.7);
 }
 
 .flag{
@@ -236,14 +248,17 @@ function surrend() {
 </head>
 <body onKeyPress="if (event.keyCode == 13) sendMessage()" >
 	<div class="content">
-		<h1>World Quizz</h1>
+		<h1  style="font-size: 55px;">World Quizz <img src="https://lh3.googleusercontent.com/qtFiw5qHmpXNDqQZ5obyu8W_4f1X_39rURMCQRp_qSpKWOUEwRpzYKoOoulo32UiWYKLh3OMByj-Qlyro3q4RtXbx7IwcAlMwGrulYjMW8vzjZ0C8B3aFKdJNCGGgpqTyI7y6sZeXo8" width="100" style="position: relative; left:50%; margin-left: -200px;"></h1>
 		<div class="flag"><img id="flag" src="" width="400" alt=""/></div>
 
-		<p id="demo"></p>
-		<input type="text" id="textfield_message" placeholder="Votre réponse">
+		<p id="demo" style="font-size: 20px"></p>
+		<div class="input-group">
+		<input class="form-control" type="text" id="textfield_message" placeholder="Votre réponse">
+		<div class="input-group-append">
 		<button class="btn btn-primary" onclick="sendMessage()">Envoyer le message</button>
 		<button class="btn btn-danger surrend" onclick="surrend()">Je donne ma langue au chat</button>
-
+		</div>
+		</div>
 
 
 	</div>
