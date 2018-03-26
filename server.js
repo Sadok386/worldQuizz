@@ -28,7 +28,7 @@ Request.get('https://restcountries.eu/rest/v2', function (error, response, body)
 // --- Routing pour todolist --
 app.get('/',function(req,res){
  // -- Racine --
-	res.render('socket',{ title: 'app socket.io'}); 
+	res.render('socket',{ title: 'app socket.io'});
 
 })
 // Chargement de socket.io
@@ -60,7 +60,7 @@ io.sockets.on('connection', function (socket) {
 	// Dès qu'on nous donne un pseudo, on le stocke en variable de session
 	socket.on('petit_nouveau', function(pseudo) {
 		socket.pseudo = pseudo;
-		
+
 		var player = new Object();
 		player.name = pseudo;
 		player.score = 0;
@@ -76,9 +76,9 @@ io.sockets.on('connection', function (socket) {
 	socket.on('message', function (message) {
 		// On récupère le pseudo de celui qui a cliqué dans les variables de session
 		console.log(socket.pseudo + ' me parle ! Il me dit : ' + message);
-		socket.broadcast.emit('message', "["+socket.pseudo+"] "+ message);
+		socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> "+ message);
 		if(message == nameCountry){
-			socket.broadcast.emit('message', "["+socket.pseudo+"] a gagné!");
+			socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> a gagné!");
 			socket.emit('message', "Vous a gagné!");
 			console.log("joueur length "+joueurs.length)
 			for (i = 0, len = joueurs.length; i < len; ++i) {
@@ -95,7 +95,7 @@ io.sockets.on('connection', function (socket) {
 				}
 				socket.emit('winner', socket.pseudo, joueurs);
 				socket.broadcast.emit('winner', socket.pseudo, joueurs);
-				
+
 			}else{
 				socket.emit('showSurrend');
 				socket.broadcast.emit('showSurrend');
@@ -107,7 +107,7 @@ io.sockets.on('connection', function (socket) {
 				socket.broadcast.emit('changeScore', joueurs);
 				socket.emit('changeScore', joueurs);
 			}
-		
+
 		}
 
 	});
@@ -115,7 +115,7 @@ io.sockets.on('connection', function (socket) {
 		// On récupère le pseudo de celui qui a cliqué dans les variables de session
 		console.log(socket.pseudo + ' est prêt!');
 		var allReady = true;
-		socket.broadcast.emit('message', "["+socket.pseudo+"] est prêt !");
+		socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> est prêt !");
 		console.log("joueurs ready: "+joueurs.length);
 		for (i = 0, len = joueurs.length; i < len; ++i) {
 		    if(joueurs[i].name == socket.pseudo){
@@ -153,7 +153,7 @@ io.sockets.on('connection', function (socket) {
 		// On récupère le pseudo de celui qui a cliqué dans les variables de session
 		console.log(socket.pseudo + ' donne sa langue au chat!');
 		var allSurrend = true;
-		socket.broadcast.emit('message', "["+socket.pseudo+"] donne sa langue au chat !");
+		socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> donne sa langue au chat !");
 		console.log("joueurs ready: "+joueurs.length);
 		for (i = 0, len = joueurs.length; i < len; ++i) {
 		    if(joueurs[i].name == socket.pseudo){
@@ -169,14 +169,13 @@ io.sockets.on('connection', function (socket) {
 
 		if(allSurrend){
 			console.log("Tout le monde donne sa langue au chat !");
-			socket.emit('message', 'Tout le monde donne sa langue au chat ! La réponse était ');
-			socket.broadcast.emit('message', "Tout le monde donne sa langue au chat ! La réponse était ");
+			socket.broadcast.emit('message', "Tout le monde donne sa langue au chat !");
 			socket.emit('answer', nameCountry);
 			socket.broadcast.emit('answer', nameCountry);
 			for (i = 0, len = joueurs.length; i < len; ++i) {
 		    	joueurs[i].surrend = false;
 		    }
-		
+
 			var i  =  Math.floor(Math.random() * Math.floor(250));
 			nameCountry = countries[i].name;
 			socket.emit('showSurrend');
@@ -190,6 +189,6 @@ io.sockets.on('connection', function (socket) {
 
 io.sockets.on( 'disconnect', function () {
     console.log( 'disconnected to server' );
-    
+
 } );
 server.listen(8080);

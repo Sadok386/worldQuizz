@@ -17,12 +17,16 @@
 
 
 <style>
+body{
+	overflow-x: hidden;
+}
 	.ui-helper-hidden-accessible{
 	display:none;
 }
 
 .content{
 	width: 80vw;
+	height: 100vh;
 	margin-left: 15vw;
 	text-align: : center;
 
@@ -32,24 +36,25 @@
 		border: 1px solid black;
 		padding: 10px;
 		width: 100%;
-		height: 40vh;
+		height: 35%;
 		overflow-y: scroll;
 		margin-top: 20px;
 }
 
 .lobby{
 		border: 1px solid black;
-		padding: 10px;
+		padding: 20px;
 }
 
 .flag{
-	width:100%;
+	width:90%;
 }
 
 .side-bar{
 	position:fixed;
 	top:20vh;
-	left: 20px;
+	left: 1vw;
+	width: 13vw;
 }
 
 #ready{
@@ -58,6 +63,12 @@
 
 .surrend{
 	display: none;
+}
+
+#flag{
+	-webkit-box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
+-moz-box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
+box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
 }
 </style>
 <script>
@@ -99,11 +110,11 @@ socket.on('newPlayer', function(joueurs) {
 	}else{
 		$(playerScore).html("En attente ...");
 	}
-	
+
 
 	$("#lobbyBody").append(row);
-	$(row).append(player); 
-	$(row).append(playerScore); 
+	$(row).append(player);
+	$(row).append(playerScore);
 	}
 });
 
@@ -120,17 +131,17 @@ socket.on('changeScore', function(joueurs) {
 
 	$(player).html(joueurs[i].name);
 	$(playerScore).html(joueurs[i].score);
-	
+
 
 	$("#lobbyBody").append(row);
-	$(row).append(player); 
-	$(row).append(playerScore); 
+	$(row).append(player);
+	$(row).append(playerScore);
 	}
 });
 
 socket.on('winner', function(nameWinner, joueurs) {
 //alert('Le serveur a un message pour vous : ' + message);
-	$("#demo").html(nameWinner+" a gagné la partie ! ");
+	$("#demo").html(document.getElementById("demo").innerHTML+nameWinner+" a gagné la partie ! ");
 	$("#lobbyBody").html("");
 	for (i = 0, len = joueurs.length; i < len; ++i) {
 		var row = document.createElement("tr");
@@ -145,24 +156,25 @@ socket.on('winner', function(nameWinner, joueurs) {
 	}else{
 		$(playerScore).html("En attente ...");
 	}
-	
+
 
 	$("#lobbyBody").append(row);
-	$(row).append(player); 
-	$(row).append(playerScore); 
+	$(row).append(player);
+	$(row).append(playerScore);
 	}
+	$(".surrend").hide();
 	$("#ready").show();
 });
 
 socket.on('newGame', function(flag) {
 //alert('Le serveur a un message pour vous : ' + message);
-document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>flag :"+flag+" et name"+name;
+//document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>flag :"+flag+" et name"+name;
 $("#flag").attr("src", flag);
 });
 function sendMessage() {
 
 	message = document.getElementById("textfield_message").value;
-	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>[moi]"+message;
+	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/><strong>Moi </strong>"+message;
 	socket.emit('message', message);
 };
 function isReady() {
@@ -180,11 +192,11 @@ function surrend() {
 };
 </script>
 </head>
-<body>
+<body onKeyPress="if (event.keyCode == 13) sendMessage()" >
 	<div class="content">
 		<h1>World Quizz</h1>
-		<div class="flag"><img id="flag" src="" width="600" height="400" alt="Matchmaking..."/></div>
-		
+		<div class="flag"><img id="flag" src="" height="300" alt=""/></div>
+
 		<p id="demo"></p>
 		<input type="text" id="textfield_message" placeholder="Votre réponse">
 		<button class="btn btn-primary" onclick="sendMessage()">Envoyer le message</button>
@@ -203,8 +215,8 @@ function surrend() {
 			</table>
 			<button id="ready" class="btn btn-success" onclick="isReady()">Pret !</button>
 		</div>
-			
+
 	</div>
-	
+
 </body>
 </html>
