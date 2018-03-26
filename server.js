@@ -169,7 +169,6 @@ io.sockets.on('connection', function (socket) {
 
 		if(allSurrend){
 			console.log("Tout le monde donne sa langue au chat !");
-			socket.broadcast.emit('message', "Tout le monde donne sa langue au chat !");
 			socket.emit('answer', nameCountry);
 			socket.broadcast.emit('answer', nameCountry);
 			for (i = 0, len = joueurs.length; i < len; ++i) {

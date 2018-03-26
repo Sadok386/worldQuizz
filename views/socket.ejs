@@ -33,11 +33,12 @@ body{
 }
 
 #demo{
+	border-radius: 3px;
 		border: 1px solid black;
 		padding: 10px;
 		width: 100%;
 		height: 35%;
-		overflow-y: scroll;
+		overflow-y: auto;
 		margin-top: 20px;
 }
 
@@ -48,6 +49,7 @@ body{
 
 .flag{
 	width:90%;
+	height: 300px;
 }
 
 .side-bar{
@@ -55,6 +57,11 @@ body{
 	top:20vh;
 	left: 1vw;
 	width: 13vw;
+}
+
+td{
+	width:100px;
+	overflow: hidden;
 }
 
 #ready{
@@ -69,6 +76,28 @@ body{
 	-webkit-box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
 -moz-box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
 box-shadow: 0px 0px 29px -1px rgba(0,0,0,0.75);
+position: relative;
+	left:50%;
+	margin-left: -200px;
+}
+
+.ui-autocomplete {
+	height: 70px;
+	width: 150px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	border:  1px solid black;
+}
+
+.ui-menu-item{
+	font-size: 14px;
+}
+
+h1{
+	width: 400px;
+	position: relative;
+	left: 50%;
+	margin-left: -200px;
 }
 </style>
 <script>
@@ -82,6 +111,8 @@ socket.emit('petit_nouveau', pseudo);
 socket.on('message', function(message) {
 //alert('Le serveur a un message pour vous : ' + message);
 document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>"+message;
+var elem = document.getElementById('demo');
+elem.scrollTop = elem.scrollHeight;
 });
 
 socket.on('showSurrend', function() {
@@ -91,7 +122,9 @@ $(".surrend").show();
 
 socket.on('answer', function(message) {
 //alert('Le serveur a un message pour vous : ' + message);
-document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/> La réponse était "+message;
+document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Tout le monde donne sa langue au chat !<br/> La réponse était "+message;
+var elem = document.getElementById('demo');
+elem.scrollTop = elem.scrollHeight;
 });
 
 socket.on('newPlayer', function(joueurs) {
@@ -141,7 +174,9 @@ socket.on('changeScore', function(joueurs) {
 
 socket.on('winner', function(nameWinner, joueurs) {
 //alert('Le serveur a un message pour vous : ' + message);
-	$("#demo").html(document.getElementById("demo").innerHTML+nameWinner+" a gagné la partie ! ");
+	$("#demo").html(document.getElementById("demo").innerHTML+"<br/>"+nameWinner+" a gagné la partie ! ");
+	var elem = document.getElementById('demo');
+  elem.scrollTop = elem.scrollHeight;
 	$("#lobbyBody").html("");
 	for (i = 0, len = joueurs.length; i < len; ++i) {
 		var row = document.createElement("tr");
@@ -175,16 +210,23 @@ function sendMessage() {
 
 	message = document.getElementById("textfield_message").value;
 	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/><strong>Moi </strong>"+message;
+	var elem = document.getElementById('demo');
+  elem.scrollTop = elem.scrollHeight;
 	socket.emit('message', message);
+	$("#textfield_message").val("");
 };
 function isReady() {
 	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Vous êtes prêt !";
+	var elem = document.getElementById('demo');
+  elem.scrollTop = elem.scrollHeight;
 	socket.emit('ready');
 	$("#ready").hide();
 };
 
 function surrend() {
 	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Vous donnez votre langue au chat !";
+	var elem = document.getElementById('demo');
+  elem.scrollTop = elem.scrollHeight;
 	$(".surrend").hide();
 
 	socket.emit('surrend');
@@ -195,27 +237,29 @@ function surrend() {
 <body onKeyPress="if (event.keyCode == 13) sendMessage()" >
 	<div class="content">
 		<h1>World Quizz</h1>
-		<div class="flag"><img id="flag" src="" height="300" alt=""/></div>
+		<div class="flag"><img id="flag" src="" width="400" alt=""/></div>
 
 		<p id="demo"></p>
 		<input type="text" id="textfield_message" placeholder="Votre réponse">
 		<button class="btn btn-primary" onclick="sendMessage()">Envoyer le message</button>
 		<button class="btn btn-danger surrend" onclick="surrend()">Je donne ma langue au chat</button>
 
-		<div class="side-bar">
-			<table class="lobby">
-				 <thead>
-			    <tr>
-			      <th scope="col">Player</th>
-			      <th scope="col">Score</th>
-			    </tr>
-			  </thead>
-			  <tbody id="lobbyBody">
-			  </tbody>
-			</table>
-			<button id="ready" class="btn btn-success" onclick="isReady()">Pret !</button>
-		</div>
 
+
+	</div>
+
+	<div class="side-bar">
+		<table class="lobby">
+			 <thead>
+				<tr>
+					<th scope="col">Player</th>
+					<th scope="col">Score</th>
+				</tr>
+			</thead>
+			<tbody id="lobbyBody">
+			</tbody>
+		</table>
+		<button id="ready" class="btn btn-success" onclick="isReady()">Pret !</button>
 	</div>
 
 </body>
