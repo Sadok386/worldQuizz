@@ -1,24 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript">
+    //<!--
+        document.oncontextmenu = new Function("return false");
+    //-->
+    </script>
 <title><%= title %></title>
 <script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <script src="/Script/function.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="/Style/style.css"></script>
+
 
 <style>
-	#demo{
+	.ui-helper-hidden-accessible{
+	display:none;
+}
+
+.content{
+	width: 80vw;
+	margin-left: 15vw;
+	text-align: : center;
+
+}
+
+#demo{
 		border: 1px solid black;
 		padding: 10px;
-		width: 400px;
-		height: 100px;
+		width: 100%;
+		height: 40vh;
 		overflow-y: scroll;
-	}
-	.lobby{
+		margin-top: 20px;
+}
+
+.lobby{
 		border: 1px solid black;
 		padding: 10px;
-		width: 200px;
-	}
+}
+
+.flag{
+	width:100%;
+}
+
+.side-bar{
+	position:fixed;
+	top:20vh;
+	left: 20px;
+}
+
+#ready{
+	margin-top:20px;
+}
+
+.surrend{
+	display: none;
+}
 </style>
 <script>
 // On ecoute le post websocket
@@ -33,12 +73,23 @@ socket.on('message', function(message) {
 document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>"+message;
 });
 
+socket.on('showSurrend', function() {
+//alert('Le serveur a un message pour vous : ' + message);
+$(".surrend").show();
+});
+
+socket.on('answer', function(message) {
+//alert('Le serveur a un message pour vous : ' + message);
+document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/> La réponse était "+message;
+});
+
 socket.on('newPlayer', function(joueurs) {
 //alert('Le serveur a un message pour vous : ' + message);
-	$(".lobby").html("");
+	$("#lobbyBody").html("");
 	for (i = 0, len = joueurs.length; i < len; ++i) {
-		  var player = document.createElement("div");
-	var playerScore = document.createElement("p");
+		var row = document.createElement("tr");
+		  var player = document.createElement("td");
+	var playerScore = document.createElement("td");
 	$(player).attr('id', joueurs[i].name+"name");
 	$(playerScore).attr('id', joueurs[i].score+"Score");
 
@@ -50,35 +101,41 @@ socket.on('newPlayer', function(joueurs) {
 	}
 	
 
-	$(".lobby").append(player);
-	$(player).append(playerScore);  
+	$("#lobbyBody").append(row);
+	$(row).append(player); 
+	$(row).append(playerScore); 
 	}
 });
 
 socket.on('changeScore', function(joueurs) {
 //alert('Le serveur a un message pour vous : ' + message);
-	$(".lobby").html("");
+	$("#lobbyBody").html("");
 	for (i = 0, len = joueurs.length; i < len; ++i) {
-		  var player = document.createElement("div");
-	var playerScore = document.createElement("p");
+
+	var row = document.createElement("tr");
+		  var player = document.createElement("td");
+	var playerScore = document.createElement("td");
 	$(player).attr('id', joueurs[i].name+"name");
 	$(playerScore).attr('id', joueurs[i].score+"Score");
 
 	$(player).html(joueurs[i].name);
 	$(playerScore).html(joueurs[i].score);
+	
 
-	$(".lobby").append(player);
-	$(player).append(playerScore);  
+	$("#lobbyBody").append(row);
+	$(row).append(player); 
+	$(row).append(playerScore); 
 	}
 });
 
 socket.on('winner', function(nameWinner, joueurs) {
 //alert('Le serveur a un message pour vous : ' + message);
 	$("#demo").html(nameWinner+" a gagné la partie ! ");
-	$(".lobby").html("");
+	$("#lobbyBody").html("");
 	for (i = 0, len = joueurs.length; i < len; ++i) {
-		  var player = document.createElement("div");
-	var playerScore = document.createElement("p");
+		var row = document.createElement("tr");
+		  var player = document.createElement("td");
+	var playerScore = document.createElement("td");
 	$(player).attr('id', joueurs[i].name+"name");
 	$(playerScore).attr('id', joueurs[i].score+"Score");
 
@@ -90,8 +147,9 @@ socket.on('winner', function(nameWinner, joueurs) {
 	}
 	
 
-	$(".lobby").append(player);
-	$(player).append(playerScore);  
+	$("#lobbyBody").append(row);
+	$(row).append(player); 
+	$(row).append(playerScore); 
 	}
 	$("#ready").show();
 });
@@ -112,18 +170,41 @@ function isReady() {
 	socket.emit('ready');
 	$("#ready").hide();
 };
+
+function surrend() {
+	document.getElementById("demo").innerHTML = document.getElementById("demo").innerHTML+"<br/>Vous donnez votre langue au chat !";
+	$(".surrend").hide();
+
+	socket.emit('surrend');
+
+};
 </script>
 </head>
 <body>
-<h1>World Quizz</h1>
-<img id="flag" src="" width="600" height="400" alt="Matchmaking..."/>
-<input type="text" id="textfield_message" placeholder="mon message">
-<button onclick="sendMessage()">Envoyer le message</button>
-<button onclick="nextGame()">Nouvelle partie</button>
-<p id="demo"></p>
-<div class="lobby">
+	<div class="content">
+		<h1>World Quizz</h1>
+		<div class="flag"><img id="flag" src="" width="600" height="400" alt="Matchmaking..."/></div>
+		
+		<p id="demo"></p>
+		<input type="text" id="textfield_message" placeholder="Votre réponse">
+		<button class="btn btn-primary" onclick="sendMessage()">Envoyer le message</button>
+		<button class="btn btn-danger surrend" onclick="surrend()">Je donne ma langue au chat</button>
+
+		<div class="side-bar">
+			<table class="lobby">
+				 <thead>
+			    <tr>
+			      <th scope="col">Player</th>
+			      <th scope="col">Score</th>
+			    </tr>
+			  </thead>
+			  <tbody id="lobbyBody">
+			  </tbody>
+			</table>
+			<button id="ready" class="btn btn-success" onclick="isReady()">Pret !</button>
+		</div>
+			
+	</div>
 	
-</div>
-<button id="ready" onclick="isReady()">Pret !</button>
 </body>
 </html>
