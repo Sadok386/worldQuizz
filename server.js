@@ -78,8 +78,8 @@ io.sockets.on('connection', function (socket) {
 		console.log(socket.pseudo + ' me parle ! Il me dit : ' + message);
 		socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> "+ message);
 		if(message == nameCountry){
-			socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> a gagné!");
-			socket.emit('message', "Vous a gagné!");
+			socket.broadcast.emit('message', "<strong>"+socket.pseudo+"</strong> a trouvé la bonne réponse !");
+			socket.emit('message', "Vous avait trouvé la bonne réponse !");
 			console.log("joueur length "+joueurs.length)
 			for (i = 0, len = joueurs.length; i < len; ++i) {
 				console.log(joueurs[i].name);
